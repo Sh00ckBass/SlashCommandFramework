@@ -7,7 +7,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,9 +46,14 @@ public class SlashCommandManager {
      * @param jda Your Instance of {@link JDA}
      */
     public void registerAllCommands(final JDA jda) {
-        for (final String command : this.commandMap.keySet()) {
-            final ISlashCommand command1 = this.commandMap.get(command);
-            jda.upsertCommand(command, command1.getDescription()).addOptions(command1.getOptions()).queue();
+        for (final String commandName : this.commandMap.keySet()) {
+            final ISlashCommand command = this.commandMap.get(commandName);
+            final Collection<OptionData> options = command.getOptions();
+            if (options == null) {
+                jda.upsertCommand(commandName, command.getDescription()).queue();
+            } else {
+                jda.upsertCommand(commandName, command.getDescription()).addOptions(options).queue();
+            }
         }
     }
 
